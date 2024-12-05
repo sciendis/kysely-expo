@@ -1,32 +1,45 @@
 {
-  "name": "kysely-expo",
-  "version": "3.0.0",
-  "description": "Expo SQLite support for Kysely",
-  "author": "mphill",
-  "scripts": {
-    "build": "tsc && rm -rf example/node_modules/kysely-expo && mkdir example/node_modules/kysely-expo && cp package.json example/node_modules/kysely-expo && cp -R dist example/node_modules/kysely-expo",
-    "publish": "tsc && npm publish",
-    "lint": "eslint ."
-  },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/"
-  ],
-  "license": "MIT",
-  "peerDependencies": {
-    "expo-sqlite": "^15.0.3",
-    "kysely": "^0.27.4"
-  },
-  "dependencies": {
-    "expo-sqlite": "^15.0.3",
-    "kysely": "^0.27.4"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.12",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-universe": "^12.1.0",
-    "prettier": "^3.3.3"
-  }
+    "name": "kysely-expo",
+    "version": "3.0.1",
+    "description": "Expo SQLite support for Kysely",
+    "author": "sciendis",
+    "scripts": {
+        "prebuild": "tsc && rm -rf example/node_modules/kysely-exporm && -rf example/node_modules  && mkdir example/node_modules && cd example/node_modules && mkdir kysely-expo && cd ../..",
+        "build": "yarn prebuild && cp package.json example/node_modules/kysely-expo && cp -R dist example/node_modules/kysely-expo",
+        "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+        "lint": "eslint --ignore-pattern .gitignore ",
+        "lint:fix": "yarn lint -- --fix .",
+        "code-style": "yarn format && yarn lint",
+        "code-style:fix": "yarn format && yarn lint:fix",
+        "pub": "yarn code-style && yarn build && npm publish"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
+    "license": "MIT",
+    "peerDependencies": {
+        "expo-sqlite": "^15.0.3",
+        "kysely": "^0.27.4"
+    },
+    "dependencies": {
+        "expo-sqlite": "^15.0.3",
+        "kysely": "^0.27.4",
+        "react": "^18.3.1",
+        "typescript": "^5.7.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.16.0",
+        "@types/react": "^18.3.12",
+        "@typescript-eslint/eslint-plugin": "^8.17.0",
+        "@typescript-eslint/parser": "^8.17.0",
+        "eslint": "^9.16.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-config-universe": "^12.1.0",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-prettier": "^5.2.1",
+        "eslint-plugin-react": "^7.37.2",
+        "prettier": "^3.3.3"
+    }
 }

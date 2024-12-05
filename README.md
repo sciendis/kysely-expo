@@ -1,28 +1,34 @@
 # Kysely Expo
-Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Next)](https://docs.expo.dev/versions/v52.0.0/sdk/sqlite/)
 
+Support for [Kysely](https://github.com/kysely-org/kysely) with
+[Expo SQLite (Next)](https://docs.expo.dev/versions/v52.0.0/sdk/sqlite/)
 
 ## Supports
-* Expo SDK 52+
-* Android / iOS
+
+- Expo SDK 52+
+- Android / iOS
 
 ## Getting Started
+
 - Install kysely-expo
 
 `yarn add kysely-expo`
 
-or 
+or
 
 `npm i kysely-expo`
 
-
 ## KyselyProvider
-Wrap the Expo app in the <KyselyProvider> component.  This component will initialize the database and provide consistent access to the Kysely instance.
+
+Wrap the Expo app in the <KyselyProvider> component. This component will initialize the database and
+provide consistent access to the Kysely instance.
 
 ## Dialect Features
 
 ### STRICT Table Support
-By default, this library will automatically create tables with `STRICT` mode enabled.  This can be disabled by setting the `disableStrictMode` option to `true`.
+
+By default, this library will automatically create tables with `STRICT` mode enabled. This can be
+disabled by setting the `disableStrictMode` option to `true`.
 
 `STRICT` tables offer many advantages to keep data consistent, portable, and clean.
 
@@ -39,21 +45,26 @@ For more information, see https://www.sqlite.org/stricttables.html
 
 ## SQLite Type Converters
 
-SQLite has support for four basic types: `string`, `number` (integer), `real` (decimal), and `blob` (binary).  SQLite doesn't support `Date`, `boolean`, `object`, etc... 
+SQLite has support for four basic types: `string`, `number` (integer), `real` (decimal), and `blob`
+(binary). SQLite doesn't support `Date`, `boolean`, `object`, etc...
 
-Using a `boolean` as an example, SQLite will store it as a `1` / 0 or `"true"` / "false".  When you read data out, you will see a number or string - not a boolean.  
+Using a `boolean` as an example, SQLite will store it as a `1` / 0 or `"true"` / "false". When you
+read data out, you will see a number or string - not a boolean.
 
 Kysely Expo offers two converters to help make this conversion transparent.
 
 ### Auto Affinity Conversion (Experimental)
 
-Setting `autoAffinityConversion` to `true` will automatically attempt to manage these conversions for you. 
+Setting `autoAffinityConversion` to `true` will automatically attempt to manage these conversions
+for you.
 
-Limitations:** Booleans are stored as `"true"` or `"false"`.  If you control all your inputs and prohibit `"true"` or "false" for string fields, this is generally completely safe.
+Limitations:\*\* Booleans are stored as `"true"` or `"false"`. If you control all your inputs and
+prohibit `"true"` or "false" for string fields, this is generally completely safe.
 
 ### Column Name-Based Conversion
 
-Setting `columnNameBasedConversion` to `ColumnNameBasedConverter[]` will automatically map columns based on a naming convention to the types you specify. 
+Setting `columnNameBasedConversion` to `ColumnNameBasedConverter[]` will automatically map columns
+based on a naming convention to the types you specify.
 
 For instance, if all of your columns that end with `_at` are dates, you can add this:
 
@@ -64,9 +75,11 @@ For instance, if all of your columns that end with `_at` are dates, you can add 
 },
 ```
 
-Columns named "`created_at`", "`updated_at`", "`deleted_at`" etc will all be converted to a `Date` type.  Rules are processed in the order they are defined.
+Columns named "`created_at`", "`updated_at`", "`deleted_at`" etc will all be converted to a `Date`
+type. Rules are processed in the order they are defined.
 
-**Only one converter can be used at a time, specifying both will result in an exception being thrown.**
+**Only one converter can be used at a time, specifying both will result in an exception being
+thrown.**
 
 ### Type Conversion Matrix
 
@@ -80,12 +93,12 @@ Columns named "`created_at`", "`updated_at`", "`deleted_at`" etc will all be con
 | `Uint8Array` | `BLOB`                                | `SQLiteType.Blob`                           |
 | `object`     | `TEXT`                                | `SQLiteType.Json`                           |
 
-
-
 ## Blob Support
 
-Using the `blob` type is it possible to store binary data in your SQLite instance.  If you are planning to store files, this is not recommended.  It's better to store the files in the [documents directory](https://docs.expo.dev/versions/latest/sdk/filesystem/) and store a path reference in your SQLite database.
-
+Using the `blob` type is it possible to store binary data in your SQLite instance. If you are
+planning to store files, this is not recommended. It's better to store the files in the
+[documents directory](https://docs.expo.dev/versions/latest/sdk/filesystem/) and store a path
+reference in your SQLite database.
 
 ## Usage Example
 
@@ -120,9 +133,9 @@ export default function App() {
 
 
 function MainScreen() {
-        
+
   const { database } = useKysely<Database>();
-  
+
   const handleInsert = async () => {
     const result = await database
       .insertInto("logs")
@@ -144,37 +157,34 @@ function MainScreen() {
 
 ## Migration Support
 
-
 ```ts
 const migrator = new Migrator({
-  db: data.database,
-  provider: new ExpoMigrationProvider({
-    migrations: {
-      "migration1": {
-        up: async (db: Kysely<Database>) => {
-          console.log("running migration 1");
-          const result = await db.schema
-            .createTable("logs")
-            .addColumn("id", "integer", (col) =>
-              col.primaryKey().autoIncrement()
-            )
-            .addColumn("message", SQLiteTypes.String, (col) => col.notNull())
-            .addColumn("created_at", SQLiteTypes.DateTime, (col) => col.notNull())
-            .execute();
-        },
-      },
-    },
-  }),
+    db: data.database,
+    provider: new ExpoMigrationProvider({
+        migrations: {
+            migration1: {
+                up: async (db: Kysely<Database>) => {
+                    console.log("running migration 1");
+                    const result = await db.schema
+                        .createTable("logs")
+                        .addColumn("id", "integer", col => col.primaryKey().autoIncrement())
+                        .addColumn("message", SQLiteTypes.String, col => col.notNull())
+                        .addColumn("created_at", SQLiteTypes.DateTime, col => col.notNull())
+                        .execute();
+                }
+            }
+        }
+    })
 });
 
-
 const result = await migrator.migrateToLatest();
-
 ```
 
 ## Sample App
 
-A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `yarn setup` will copy the files locally.
+A sample Expo app is included in the `example` folder. It is a simple app that uses Expo SQLite and
+Kysely to create a database and perform basic CRUD operations. React Native applications do not
+support `npm link` so `yarn setup` will copy the files locally.
 
 To run the example app:
 
@@ -189,3 +199,10 @@ To run the example app:
 
 - [ ] Streaming support
 - [ ] Better BigInt support
+
+## Changelog
+
+### 3.0.1
+
+- added suport for SQLOpenOptions
+- forked from mphill
