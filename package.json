@@ -1,5 +1,5 @@
 {
-    "name": "kysely-expo",
+    "name": "@sciendis/kysely-expo",
     "version": "3.0.1",
     "description": "Expo SQLite support for Kysely",
     "author": "sciendis",
