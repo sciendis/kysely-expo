@@ -4,20 +4,28 @@
     "description": "Expo SQLite support for Kysely",
     "author": "sciendis",
     "scripts": {
-        "prebuild": "tsc && rm -rf example/node_modules/kysely-exporm && -rf example/node_modules  && mkdir example/node_modules && cd example/node_modules && mkdir kysely-expo && cd ../..",
+        "prebuild": "tsc && rm -rf example/node_modules/kysely-exporm && rm -rf example/node_modules  && mkdir example/node_modules && cd example/node_modules && mkdir kysely-expo && cd ../..",
         "build": "yarn prebuild && cp package.json example/node_modules/kysely-expo && cp -R dist example/node_modules/kysely-expo",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
         "lint": "eslint --ignore-pattern .gitignore ",
         "lint:fix": "yarn lint -- --fix .",
         "code-style": "yarn format && yarn lint",
         "code-style:fix": "yarn format && yarn lint:fix",
-        "pub": "yarn code-style && yarn build && npm publish"
+        "pub": "yarn format && yarn build && npm publish"
     },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
         "dist/"
     ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sciendis/kysely-expo.git"
+    },
+    "bugs": {
+        "url": "https://github.com/sciendis/kysely-expo/issues"
+    },
+    "homepage": "https://github.com/sciendis/kysely-expo#readme",
     "license": "MIT",
     "peerDependencies": {
         "expo-sqlite": "^15.0.3",
