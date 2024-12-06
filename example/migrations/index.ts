@@ -152,6 +152,90 @@ export const getMigrator = (database: Kysely<Database>) =>
                             .addColumn("object_type", SQLiteType.Json, col => col.notNull())
                             .execute();
                     }
+                },
+                "4": {
+                    up: async (db: Kysely<Database>) => {
+                        console.log("running migration 4");
+
+                        try {
+                            sql`begin transaction;`;
+                            await db.schema
+                                .createTable("products")
+                                .addColumn("productId", SQLiteType.String, col =>
+                                    col.primaryKey().notNull()
+                                )
+                                .addColumn("itemNumber", SQLiteType.String, col => col.notNull())
+                                .addColumn("description", SQLiteType.String)
+                                .addColumn("additional", SQLiteType.String)
+                                .addColumn("size", SQLiteType.String)
+                                .addColumn("packageSize", SQLiteType.String)
+                                .addColumn("pzn", SQLiteType.String)
+                                .addColumn("category", SQLiteType.String)
+                                .addColumn("categoryId", SQLiteType.String)
+                                .addColumn("isLocked", SQLiteType.Boolean)
+                                .addColumn("discontinued", SQLiteType.Boolean)
+                                .addColumn("type", SQLiteType.String)
+                                .ifNotExists()
+                                .execute();
+
+                            await db.schema
+                                .createTable("orders")
+                                .addColumn("orderId", SQLiteType.String, col =>
+                                    col.primaryKey().notNull()
+                                )
+                                .addColumn("responsibleUserId", SQLiteType.String, col =>
+                                    col.notNull()
+                                )
+                                .addColumn("externalDoctorId", SQLiteType.String, col =>
+                                    col.notNull()
+                                )
+                                .addColumn("externalNursingId", SQLiteType.String, col =>
+                                    col.notNull()
+                                )
+                                .addColumn("patientId", SQLiteType.String, col => col.notNull())
+                                .addColumn("status", SQLiteType.String)
+                                .addColumn("createdAt", SQLiteType.String)
+                                .addColumn("patientName", SQLiteType.String)
+                                .addColumn("prescriptionExists", SQLiteType.Boolean)
+                                .addColumn("prescriptionPhotoUploaded", SQLiteType.Boolean)
+                                .addColumn("addresses", SQLiteType.String)
+                                .addColumn("items", SQLiteType.String)
+                                .addColumn("comment", SQLiteType.String)
+                                .addColumn("archived", SQLiteType.Boolean)
+                                .addColumn("teamId", SQLiteType.String)
+                                .addColumn("createdBy", SQLiteType.String)
+                                .addColumn("shippedAt", SQLiteType.String)
+                                .addColumn("deliveredAt", SQLiteType.String)
+                                .addColumn("trackingLinks", SQLiteType.String)
+                                .addColumn("signature", SQLiteType.String)
+                                .addColumn("orderNumber", SQLiteType.String)
+                                .addColumn("wundexId", SQLiteType.Integer)
+                                .addColumn("staged", SQLiteType.Boolean)
+                                .ifNotExists()
+                                .execute();
+
+                            await db.schema
+                                .alterTable("orders")
+                                .addColumn("deliveryNoticeIds", SQLiteType.String)
+                                .execute();
+
+                            await db.schema
+                                .alterTable("orders")
+                                .addColumn("inactive", SQLiteType.Boolean)
+                                .execute();
+
+                            await db.schema
+                                .alterTable("orders")
+                                .addColumn("acribaId", SQLiteType.String)
+                                .execute();
+                            sql`commit;`;
+                        } catch (error) {
+                            console.error("rolling back:", error);
+                            sql`rollback;`;
+
+                            throw error;
+                        }
+                    }
                 }
             }
         })

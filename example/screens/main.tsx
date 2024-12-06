@@ -12,12 +12,15 @@ import { PhoneTable } from "../tables/phone-table";
 import { TypeTestsTable } from "../tables/type-tests-tables";
 import runner from "../tests";
 import { base64ToBlob } from "../utils";
+import { ProductTable, OrderTable } from "../tables/order-table";
 
 export interface Database {
     type_tests: TypeTestsTable;
     brands: BrandTable;
     phones: PhoneTable;
     files: FileTable;
+    products: ProductTable;
+    orders: OrderTable;
 }
 
 export default function MainScreen() {

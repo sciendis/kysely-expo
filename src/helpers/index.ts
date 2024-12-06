@@ -36,8 +36,12 @@ function isBigInt(value: unknown): value is bigint {
 
 const safeParse = (json: any, onError?: OnError) => {
     try {
-        return JSON.parse(json);
+        return JSON.parse(json); // somehow some string values are considered as JSON and it throws an error
     } catch (e) {
+        if (typeof json === "string") {
+            // if it's a string, return it as is
+            return String(json);
+        }
         onError && onError(`Failed to parse value: ${json}`, e);
         return undefined;
     }

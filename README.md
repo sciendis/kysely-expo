@@ -202,6 +202,11 @@ To run the example app:
 
 ## Changelog
 
+### 3.0.2
+
+- fixed example app and added some test data for orders
+- dirty fixed JSON parse error for string that were marked as json but were instead jsut normal strings
+
 ### 3.0.1
 
 - added suport for SQLOpenOptions
