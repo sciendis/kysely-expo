@@ -202,6 +202,10 @@ To run the example app:
 
 ## Changelog
 
+### 3.0.3
+
+- fixed exports
+
 ### 3.0.2
 
 - fixed example app and added some test data for orders

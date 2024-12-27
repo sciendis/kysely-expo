@@ -1,6 +1,5 @@
-import { ExpoDialect } from "./driver";
-import ExpoMigrationProvider from "./expo-migration-provider";
-import KyselyProvider, { useKysely } from "./kysely-provider";
-import { SQLiteType } from "./types/sqlite-types";
-
-export { ExpoMigrationProvider, ExpoDialect, KyselyProvider, useKysely, SQLiteType };
+export { ExpoDialect } from "./driver";
+export { default as ExpoMigrationProvider } from "./expo-migration-provider";
+export { default as KyselyProvider } from "./kysely-provider";
+export { useKysely } from "./kysely-provider";
+export { SQLiteType } from "./types/sqlite-types";
