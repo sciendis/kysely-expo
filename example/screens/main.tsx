@@ -12,10 +12,8 @@ import { PhoneTable } from "../tables/phone-table";
 import { TypeTestsTable } from "../tables/type-tests-tables";
 import runner from "../tests";
 import { base64ToBlob } from "../utils";
-import { ProductTable, OrderTable } from "../tables/order-table";
-import { PatientTable } from "../tables/patients-table";
+import { TypeTestsTable } from "../tables/type-tests-tables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 export interface Database {
     type_tests: TypeTestsTable;
     brands: BrandTable;
@@ -27,9 +25,9 @@ export interface Database {
 }
 
 export default function MainScreen() {
-    const safeAreaInsets = useSafeAreaInsets();
-    const database = useKysely<Database>();
-    const [consoleText, setConsoleText] = useState("");
+  const safeAreaInsets = useSafeAreaInsets();
+  const database = useKysely<Database>();
+  const [consoleText, setConsoleText] = useState("");
 
     const getRandomNumberBetween = (min: number, max: number) =>
         Math.floor(Math.random() * (max - min + 1) + min);
@@ -141,12 +139,14 @@ export default function MainScreen() {
     const handleTest = async () => {
         const result = await runner(database);
 
-        setConsoleText(
-            result
-                .map(result => `- ${result.description}: ${result.passed ? "✅" : "❌"}`)
-                .join("\n")
-        );
-    };
+    setConsoleText(
+      result
+        .map(
+          (result) => `- ${result.description}: ${result.passed ? "✅" : "❌"}`,
+        )
+        .join("\n"),
+    );
+  };
 
     const handleSelectFiles = async () => {
         const files = await database
@@ -221,69 +221,69 @@ export default function MainScreen() {
         });
     };
 
-    return (
-        <ScrollView
+  return (
+    <ScrollView
+      style={{
+        flex: 1,
+        paddingTop: safeAreaInsets.top,
+        paddingBottom: safeAreaInsets.bottom,
+        backgroundColor: "black",
+      }}
+    >
+      <StatusBar style="auto" />
+      <View style={{ ...styles.container, paddingTop: 50 }}>
+        <View style={{ flex: 1 }}>
+          <ScrollView
             style={{
-                flex: 1,
-                paddingTop: safeAreaInsets.top,
-                paddingBottom: safeAreaInsets.bottom,
-                backgroundColor: "black"
+              display: "flex",
+              borderColor: "white",
+              borderWidth: 1,
+              borderRadius: 5,
             }}
-        >
-            <StatusBar style="auto" />
-            <View style={{ ...styles.container, paddingTop: 50 }}>
-                <View style={{ flex: 1 }}>
-                    <ScrollView
-                        style={{
-                            display: "flex",
-                            borderColor: "white",
-                            borderWidth: 1,
-                            borderRadius: 5
-                        }}
-                    >
-                        <TextInput
-                            multiline
-                            value={consoleText}
-                            style={{
-                                padding: 10,
-                                color: "white",
-                                width: "100%",
-                                fontWeight: "bold"
-                            }}
-                        />
-                    </ScrollView>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <View
-                        style={{
-                            justifyContent: "center",
-                            flexDirection: "row",
+          >
+            <TextInput
+              multiline
+              value={consoleText}
+              style={{
+                padding: 10,
+                color: "white",
+                width: "100%",
+                fontWeight: "bold",
+              }}
+            />
+          </ScrollView>
+        </View>
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              justifyContent: "center",
+              flexDirection: "row",
 
-                            alignItems: "center"
-                        }}
-                    ></View>
+              alignItems: "center",
+            }}
+          ></View>
 
-                    <Button title="Insert" onPress={handleInsert} />
-                    <Button title="Select" onPress={handleSelect} />
-                    <Button title="Delete" onPress={handleDelete} />
-                    <Button title="Delete Cascade" onPress={handleDeleteBrand} />
-                    <Button title="Update" onPress={handleUpdate} />
-                    <Button title="Transaction" onPress={handleTransaction} />
-                    <Button title="Store File" onPress={handlePickImage} />
-                    <Button title="Select Files" onPress={handleSelectFiles} />
-                    <Button title="Select Stream" onPress={handleSelectStream} />
-                    <Button title="Run Tests" onPress={handleTest} />
-                </View>
-            </View>
-        </ScrollView>
-    );
+          <Button title="Insert" onPress={handleInsert} />
+          <Button title="Select" onPress={handleSelect} />
+          <Button title="Delete" onPress={handleDelete} />
+          <Button title="Delete Cascade" onPress={handleDeleteBrand} />
+          <Button title="Update" onPress={handleUpdate} />
+          <Button title="Transaction" onPress={handleTransaction} />
+          <Button title="Store File" onPress={handlePickImage} />
+          <Button title="Select Files" onPress={handleSelectFiles} />
+          <Button title="Select Stream" onPress={handleSelectStream} />
+          <Button title="Run Tests" onPress={handleTest} />
+        </View>
+      </View>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: 30
-    },
+  container: {
+    flex: 1,
+    paddingTop: 30,
+  },
 
     text: {
         paddingHorizontal: 5,

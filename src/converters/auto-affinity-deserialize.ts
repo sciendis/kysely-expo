@@ -56,50 +56,52 @@ const typeIntrospection = (map: object): Map<string, ValidTypes> => {
 
     const typeMapping = new Map<string, ValidTypes>();
 
-    // Use Object.entries instead of Object.keys for better performance and cleaner code
-    Object.entries(map).forEach(([key, value]) => {
-        if (value === null || value === undefined) {
-            typeMapping.set(key, "null");
-            return;
-        }
-
-        const valueType = typeof value;
-
-        switch (valueType) {
-            case "string":
-                if (isStringIso8601(value)) {
-                    typeMapping.set(key, "datetime");
-                } else if (isStringBoolean(value)) {
-                    typeMapping.set(key, "boolean");
-                } else if (isStringJson(value)) {
-                    typeMapping.set(key, "object");
-                } else {
-                    typeMapping.set(key, "string");
-                }
-                break;
-            case "number":
-                typeMapping.set(key, "number");
-                break;
-            case "boolean":
-                typeMapping.set(key, "boolean");
-                break;
-            case "object":
-                if (isUint8Array(value)) {
-                    typeMapping.set(key, "blob");
-                } else {
-                    typeMapping.set(key, "object");
-                }
-                break;
-            default:
-                throw new Error(`Unknown type: ${valueType}`);
-        }
-    });
-
-    // Validation check
-    const numKeys = Object.keys(map).length;
-    if (numKeys !== typeMapping.size) {
-        throw new Error(`Type mapping size mismatch: expected ${numKeys}, got ${typeMapping.size}`);
+  // Use Object.entries instead of Object.keys for better performance and cleaner code
+  Object.entries(map).forEach(([key, value]) => {
+    if (value === null || value === undefined) {
+      typeMapping.set(key, "null");
+      return;
     }
+
+    const valueType = typeof value;
+
+    switch (valueType) {
+      case "string":
+        if (isStringIso8601(value)) {
+          typeMapping.set(key, "datetime");
+        } else if (isStringBoolean(value)) {
+          typeMapping.set(key, "boolean");
+        } else if (isStringJson(value)) {
+          typeMapping.set(key, "object");
+        } else {
+          typeMapping.set(key, "string");
+        }
+        break;
+      case "number":
+        typeMapping.set(key, "number");
+        break;
+      case "boolean":
+        typeMapping.set(key, "boolean");
+        break;
+      case "object":
+        if (isUint8Array(value)) {
+          typeMapping.set(key, "blob");
+        } else {
+          typeMapping.set(key, "object");
+        }
+        break;
+      default:
+        throw new Error(`Unknown type: ${valueType}`);
+    }
+  });
+
+  // Validation check
+  const numKeys = Object.keys(map).length;
+  if (numKeys !== typeMapping.size) {
+    throw new Error(
+      `Type mapping size mismatch: expected ${numKeys}, got ${typeMapping.size}`,
+    );
+  }
 
     return typeMapping;
 };
