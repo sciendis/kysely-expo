@@ -26,7 +26,17 @@
         "url": "https://github.com/sciendis/kysely-expo/issues"
     },
     "homepage": "https://github.com/sciendis/kysely-expo#readme",
-    "license": "MIT",
+    "license": "MIT",  
+    "keywords": [
+        "kysely",
+        "sqlite",
+        "expo",
+        "react-native",
+        "typescript",
+        "database",
+        "sql",
+        "query builder"
+    ],
     "peerDependencies": {
         "expo-sqlite": "^15.0.6",
         "kysely": "^0.27.6"
