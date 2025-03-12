@@ -12,7 +12,10 @@ import {
     QueryResult,
     Dialect,
     CompiledQuery,
-    SelectQueryNode
+    SelectQueryNode,
+    InsertQueryNode,
+    UpdateQueryNode,
+    DeleteQueryNode
 } from "kysely";
 
 import { deserialize as autoAffinityDeserialize } from "./converters/auto-affinity-deserialize";
@@ -82,7 +85,7 @@ export class ExpoDriver implements Driver {
     }
 
     async destroy(): Promise<void> {
-        this.#connection.closeConnection();
+        await this.#connection.closeConnection();
     }
 
     async getDatabaseRuntimeVersion() {
@@ -106,7 +109,11 @@ class ExpoConnection implements DatabaseConnection {
     config: ExpoDialectConfig;
 
     constructor(config: ExpoDialectConfig) {
-        this.sqlite = SQLite.openDatabaseSync(config.database, config.sQLiteOpenOptions);
+        if (typeof config.database === "string") {
+            this.sqlite = SQLite.openDatabaseSync(config.database, config.sQLiteOpenOptions);
+        } else {
+            this.sqlite = config.database;
+        }
 
         this.debug = config.debug ?? false;
         this.config = config;
@@ -138,14 +145,18 @@ class ExpoConnection implements DatabaseConnection {
 
         const readonly = query.kind === "SelectQueryNode" || query.kind === "RawNode";
 
+        // Check if the query has a RETURNING clause
+        const hasReturning = sql.toUpperCase().includes("RETURNING");
+
         const transformedParameters = serialize([...parameters]);
 
         if (this.debug) {
             console.debug(`${query.kind}${readonly ? " (readonly)" : ""}: ${sql}`);
+            if (hasReturning) console.debug("Query has RETURNING clause");
         }
 
         if (readonly) {
-            const res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
+            let res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
 
             const skip = query.kind === "SelectQueryNode" && sql.includes("pragma_table_info"); // @todo: fix this hack - find a better way
 
@@ -153,7 +164,15 @@ class ExpoConnection implements DatabaseConnection {
                 if (this.debug) console.log("processing nameBasedDeserialize");
 
                 return {
-                    rows: nameBasedDeserialize(res, this.config.columnNameBasedConversion)
+                    rows: nameBasedDeserialize(res, this.config.columnNameBasedConversion),
+                    // Add these properties for non-readonly queries with RETURNING
+                    ...(hasReturning && !readonly
+                        ? {
+                              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                              numAffectedRows: BigInt(0), // We don't know this value
+                              insertId: BigInt(0) // We don't know this value
+                          }
+                        : {})
                 } satisfies QueryResult<R>;
             }
 
@@ -161,12 +180,28 @@ class ExpoConnection implements DatabaseConnection {
                 if (this.debug) console.log("processing autoAffinityDeserialize");
 
                 return {
-                    rows: autoAffinityDeserialize(res, this.config.onError)
+                    rows: autoAffinityDeserialize(res, this.config.onError),
+                    // Add these properties for non-readonly queries with RETURNING
+                    ...(hasReturning && !readonly
+                        ? {
+                              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                              numAffectedRows: BigInt(0), // We don't know this value
+                              insertId: BigInt(0) // We don't know this value
+                          }
+                        : {})
                 } satisfies QueryResult<R>;
             }
 
             return {
-                rows: res
+                rows: res,
+                // Add these properties for non-readonly queries with RETURNING
+                ...(hasReturning && !readonly
+                    ? {
+                          numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                          numAffectedRows: BigInt(0), // We don't know this value
+                          insertId: BigInt(0) // We don't know this value
+                      }
+                    : {})
             } satisfies QueryResult<R>;
         } else {
             const res = await this.sqlite.runAsync(sql, transformedParameters);
