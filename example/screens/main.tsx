@@ -14,6 +14,7 @@ import runner from "../tests";
 import { base64ToBlob } from "../utils";
 import { ProductTable, OrderTable } from "../tables/order-table";
 import { PatientTable } from "../tables/patients-table";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export interface Database {
     type_tests: TypeTestsTable;
@@ -26,6 +27,7 @@ export interface Database {
 }
 
 export default function MainScreen() {
+    const safeAreaInsets = useSafeAreaInsets();
     const database = useKysely<Database>();
     const [consoleText, setConsoleText] = useState("");
 
@@ -141,7 +143,7 @@ export default function MainScreen() {
 
         setConsoleText(
             result
-                .map(result => `- ${result.description}: ${result.passed ? "passed" : "failed"}`)
+                .map(result => `- ${result.description}: ${result.passed ? "✅" : "❌"}`)
                 .join("\n")
         );
     };
@@ -220,55 +222,67 @@ export default function MainScreen() {
     };
 
     return (
-        <View style={{ ...styles.container, paddingTop: 50 }}>
-            <View style={{ flex: 1 }}>
-                <ScrollView
-                    style={{
-                        display: "flex",
-                        borderColor: "white",
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }}
-                >
-                    <TextInput
-                        multiline
-                        value={consoleText}
-                        style={{ padding: 10, color: "#39FF14", width: "100%" }}
-                    />
-                </ScrollView>
-            </View>
-            <View style={{ flex: 1 }}>
-                <View
-                    style={{
-                        justifyContent: "center",
-                        flexDirection: "row",
-
-                        alignItems: "center"
-                    }}
-                />
-
-                <Button title="Insert" onPress={handleInsert} />
-                <Button title="Select" onPress={handleSelect} />
-                <Button title="Delete" onPress={handleDelete} />
-                <Button title="Delete Cascade" onPress={handleDeleteBrand} />
-                <Button title="Update" onPress={handleUpdate} />
-                <Button title="Transaction" onPress={handleTransaction} />
-                <Button title="Store File" onPress={handlePickImage} />
-                <Button title="Select Files" onPress={handleSelectFiles} />
-                <Button title="Select Stream" onPress={handleSelectStream} />
-                <Button title="Test" onPress={handleTest} />
-                <Button title="Patients" onPress={handleSelectPatients} />
-            </View>
+        <ScrollView
+            style={{
+                flex: 1,
+                paddingTop: safeAreaInsets.top,
+                paddingBottom: safeAreaInsets.bottom,
+                backgroundColor: "black"
+            }}
+        >
             <StatusBar style="auto" />
-        </View>
+            <View style={{ ...styles.container, paddingTop: 50 }}>
+                <View style={{ flex: 1 }}>
+                    <ScrollView
+                        style={{
+                            display: "flex",
+                            borderColor: "white",
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }}
+                    >
+                        <TextInput
+                            multiline
+                            value={consoleText}
+                            style={{
+                                padding: 10,
+                                color: "white",
+                                width: "100%",
+                                fontWeight: "bold"
+                            }}
+                        />
+                    </ScrollView>
+                </View>
+                <View style={{ flex: 1 }}>
+                    <View
+                        style={{
+                            justifyContent: "center",
+                            flexDirection: "row",
+
+                            alignItems: "center"
+                        }}
+                    ></View>
+
+                    <Button title="Insert" onPress={handleInsert} />
+                    <Button title="Select" onPress={handleSelect} />
+                    <Button title="Delete" onPress={handleDelete} />
+                    <Button title="Delete Cascade" onPress={handleDeleteBrand} />
+                    <Button title="Update" onPress={handleUpdate} />
+                    <Button title="Transaction" onPress={handleTransaction} />
+                    <Button title="Store File" onPress={handlePickImage} />
+                    <Button title="Select Files" onPress={handleSelectFiles} />
+                    <Button title="Select Stream" onPress={handleSelectStream} />
+                    <Button title="Run Tests" onPress={handleTest} />
+                </View>
+            </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 30,
-        backgroundColor: "#000"
+        paddingTop: 30
     },
 
     text: {
