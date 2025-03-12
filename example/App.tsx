@@ -36,7 +36,7 @@ export default function App() {
             //         }
             //     }
             // ]}
-            debug={false}
+            debug={true}
             onInit={database =>
                 getMigrator(database).migrateToLatest().then(console.log, console.error)
             }

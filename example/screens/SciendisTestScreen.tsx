@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Order, NewOrder } from "../tables/order-table";
 import { useKysely } from "kysely-expo";
 import { Database } from "./main";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Button } from "react-native";
 
 const ordersMockData: NewOrder[] = [
     {
@@ -450,31 +450,56 @@ export const SciendisTestScreen: React.FC = () => {
     const kysely = useKysely<Database>();
     const [orders, setOrders] = useState<Order[]>([]);
 
-    useEffect(() => {
-        console.log("Orders", orders);
-        kysely
-            .insertInto("orders")
-            .values(ordersMockData)
-            .onConflict(oc =>
-                oc.column("orderId").doUpdateSet({
-                    orderId: eb => eb.ref("excluded.orderId")
-                })
-            )
-            .execute()
-            .then(() => {
-                kysely
-                    .selectFrom("orders")
-                    .selectAll()
+    // useEffect(() => {
+    //     console.log("Orders", orders);
+    //     kysely
+    //         .insertInto("orders")
+    //         .values(ordersMockData)
+    //         .onConflict(oc =>
+    //             oc.column("orderId").doUpdateSet({
+    //                 orderId: eb => eb.ref("excluded.orderId")
+    //             })
+    //         )
+    //         .execute()
+    //         .then(() => {
+    //             kysely
+    //                 .selectFrom("orders")
+    //                 .selectAll()
 
-                    .orderBy("createdAt", "desc")
-                    .execute()
-                    .then(res => setOrders(res));
-            })
-            .catch(console.error);
-    }, []);
+    //                 .orderBy("createdAt", "desc")
+    //                 .execute()
+    //                 .then(res => setOrders(res));
+    //         })
+    //         .catch(console.error);
+    // }, []);
+
+    const handleSelectPatients = async () => {
+        const patients = await kysely
+            .selectFrom("patients")
+            .selectAll()
+            // .where(eb =>
+            //     eb.and([
+            //         eb("created", "!=", true).or(eb("staged", "!=", true)),
+            //         eb("archived", "=", true)
+            //     ])
+            // )
+            .where(eb =>
+                eb.or([
+                    eb("created", "is", null).or("created", "!=", true),
+                    eb("staged", "is", null).or("staged", "!=", true)
+                ])
+            )
+            .where("archived", "=", true)
+            .execute();
+
+        console.log(patients);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Orders</Text>
+
+            <Button title="Patients" onPress={handleSelectPatients} />
             {orders.map(order => (
                 <View key={order.orderId}>
                     <Text>{order.createdAt.toISOString()}</Text>

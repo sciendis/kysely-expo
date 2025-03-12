@@ -1,6 +1,7 @@
 {
     "name": "@sciendis/kysely-expo",
     "version": "3.0.3",
+    "type": "module",
     "description": "Expo SQLite support for Kysely",
     "author": "sciendis",
     "scripts": {

@@ -228,6 +228,48 @@ export const getMigrator = (database: Kysely<Database>) =>
                                 .alterTable("orders")
                                 .addColumn("acribaId", SQLiteType.String)
                                 .execute();
+
+                            await db.schema
+                                .createTable("patients")
+                                .addColumn("patientId", SQLiteType.String, col =>
+                                    col.primaryKey().notNull()
+                                )
+                                .addColumn("name", SQLiteType.String, col => col.notNull())
+                                .addColumn("created", SQLiteType.Boolean)
+                                .addColumn("staged", SQLiteType.Boolean)
+                                .addColumn("deleted", SQLiteType.Boolean)
+                                .addColumn("archived", SQLiteType.Boolean, col => col.notNull())
+                                .execute();
+
+                            await db
+                                .insertInto("patients")
+                                .values([
+                                    {
+                                        patientId: "abc1",
+                                        name: "ABC",
+                                        created: true,
+                                        staged: false,
+                                        deleted: null,
+                                        archived: false
+                                    },
+                                    {
+                                        patientId: "abc2",
+                                        name: "DEF",
+                                        created: false,
+                                        staged: false,
+                                        deleted: null,
+                                        archived: false
+                                    },
+                                    {
+                                        patientId: "abc3",
+                                        name: "GHI",
+                                        created: null,
+                                        staged: null,
+                                        deleted: null,
+                                        archived: true
+                                    }
+                                ])
+                                .execute();
                             sql`commit;`;
                         } catch (error) {
                             console.error("rolling back:", error);

@@ -13,6 +13,7 @@ import { TypeTestsTable } from "../tables/type-tests-tables";
 import runner from "../tests";
 import { base64ToBlob } from "../utils";
 import { ProductTable, OrderTable } from "../tables/order-table";
+import { PatientTable } from "../tables/patients-table";
 
 export interface Database {
     type_tests: TypeTestsTable;
@@ -21,6 +22,7 @@ export interface Database {
     files: FileTable;
     products: ProductTable;
     orders: OrderTable;
+    patients: PatientTable;
 }
 
 export default function MainScreen() {
@@ -255,6 +257,7 @@ export default function MainScreen() {
                 <Button title="Select Files" onPress={handleSelectFiles} />
                 <Button title="Select Stream" onPress={handleSelectStream} />
                 <Button title="Test" onPress={handleTest} />
+                <Button title="Patients" onPress={handleSelectPatients} />
             </View>
             <StatusBar style="auto" />
         </View>
