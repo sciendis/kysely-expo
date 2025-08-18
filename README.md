@@ -202,6 +202,10 @@ To run the example app:
 
 ## Changelog
 
+### 3.2.0
+
+- fixed: first value being null clobbering typeIntrospection
+
 ### 3.0.3
 
 - fixed exports
