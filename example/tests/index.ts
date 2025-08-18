@@ -32,15 +32,19 @@ const runner = async (database: Kysely<Database>) => {
         .where("id", "in", [1, 2])
         .executeTakeFirst();
 
-    // get all brands with created_at > avg
-    const brands = await database
-        .selectFrom("brands")
-        .select(["brands.name", "brands.created_at"])
-        .where("created_at", ">", new Date("2010-06-01 00:00:00"))
-        .execute();
+  // get all brands with created_at > avg
+  const brands = await database
+    .selectFrom("brands")
+    .select(["brands.name", "brands.created_at"])
+    .where("created_at", ">", new Date("2010-06-01 00:00:00"))
+    .execute();
 
-    // set brand 1 is_active to false
-    await database.updateTable("brands").set({ is_active: false }).where("id", "=", 1).execute();
+  // set brand 1 is_active to false
+  await database
+    .updateTable("brands")
+    .set({ is_active: false })
+    .where("id", "=", 1)
+    .execute();
 
     // get all brands with is_active = false
     const inactiveBrands = await database
@@ -60,24 +64,30 @@ const runner = async (database: Kysely<Database>) => {
         .select(min("created_at").as("created_at"))
         .executeTakeFirst();
 
-    results.push({
-        description: "Verify min created_at is 2000-01-01 00:00:00",
-        passed: minCreatedAt.created_at.getTime() == new Date("2000-01-01 00:00:00").getTime()
-    });
+  results.push({
+    description: "Verify min created_at is 2000-01-01 00:00:00",
+    passed:
+      minCreatedAt.created_at.getTime() ==
+      new Date("2000-01-01 00:00:00").getTime(),
+  });
 
-    // update brand 1 name to null
-    try {
-        await database.updateTable("brands").set({ name: null }).where("id", "=", 1).execute();
-        results.push({
-            description: "Verify null constraint is enforced",
-            passed: false
-        });
-    } catch (e) {
-        results.push({
-            description: "Verify null constraint is enforced",
-            passed: true
-        });
-    }
+  // update brand 1 name to null
+  try {
+    await database
+      .updateTable("brands")
+      .set({ name: null })
+      .where("id", "=", 1)
+      .execute();
+    results.push({
+      description: "Verify null constraint is enforced",
+      passed: false,
+    });
+  } catch (e) {
+    results.push({
+      description: "Verify null constraint is enforced",
+      passed: true,
+    });
+  }
 
     // Remove all records from type_tests
     await database.deleteFrom("type_tests").execute();
@@ -226,14 +236,17 @@ const runner = async (database: Kysely<Database>) => {
             message: joinResult ? "JOIN operation successful" : "JOIN operation failed"
         });
 
-        await database.deleteFrom("phones").where("name", "=", "Test Join Product").execute();
-    } catch (e) {
-        results.push({
-            description: "Verify JOIN operations work correctly",
-            passed: false,
-            message: `JOIN test failed with error: ${e}`
-        });
-    }
+    await database
+      .deleteFrom("phones")
+      .where("name", "=", "Test Join Product")
+      .execute();
+  } catch (e) {
+    results.push({
+      description: "Verify JOIN operations work correctly",
+      passed: false,
+      message: `JOIN test failed with error: ${e}`,
+    });
+  }
 
     // Test for LIKE operator
     try {
@@ -243,96 +256,96 @@ const runner = async (database: Kysely<Database>) => {
             .where("name", "like", "%apple%")
             .execute();
 
-        results.push({
-            description: "Verify LIKE operator works correctly",
-            passed: likeResults.length > 0,
-            message:
-                likeResults.length > 0
-                    ? "LIKE operator returned expected results"
-                    : "LIKE operator failed to return results"
-        });
-    } catch (e) {
-        results.push({
-            description: "Verify LIKE operator works correctly",
-            passed: false,
-            message: `LIKE test failed with error: ${e}`
-        });
-    }
+    results.push({
+      description: "Verify LIKE operator works correctly",
+      passed: likeResults.length > 0,
+      message:
+        likeResults.length > 0
+          ? "LIKE operator returned expected results"
+          : "LIKE operator failed to return results",
+    });
+  } catch (e) {
+    results.push({
+      description: "Verify LIKE operator works correctly",
+      passed: false,
+      message: `LIKE test failed with error: ${e}`,
+    });
+  }
 
-    // Test for RETURNING clause
-    try {
-        // Insert a record with RETURNING clause
-        const insertResult = await database
-            .insertInto("phones")
-            .values({
-                name: "Returning Test Phone",
-                brand_id: 1,
-                created_at: new Date(),
-                is_active: true,
-                meta_json: {
-                    foo: "returning test",
-                    bar: 456
-                }
-            })
-            .returning(["id", "name", "brand_id"])
-            .executeTakeFirst();
+  // Test for RETURNING clause
+  try {
+    // Insert a record with RETURNING clause
+    const insertResult = await database
+      .insertInto("phones")
+      .values({
+        name: "Returning Test Phone",
+        brand_id: 1,
+        created_at: new Date(),
+        is_active: true,
+        meta_json: {
+          foo: "returning test",
+          bar: 456,
+        },
+      })
+      .returning(["id", "name", "brand_id"])
+      .executeTakeFirst();
 
-        results.push({
-            description: "Verify INSERT with RETURNING clause works correctly",
-            passed:
-                insertResult !== undefined &&
-                insertResult.id !== undefined &&
-                insertResult.name === "Returning Test Phone" &&
-                insertResult.brand_id === 1,
-            message: insertResult
-                ? "INSERT with RETURNING clause successful"
-                : "INSERT with RETURNING clause failed"
-        });
+    results.push({
+      description: "Verify INSERT with RETURNING clause works correctly",
+      passed:
+        insertResult !== undefined &&
+        insertResult.id !== undefined &&
+        insertResult.name === "Returning Test Phone" &&
+        insertResult.brand_id === 1,
+      message: insertResult
+        ? "INSERT with RETURNING clause successful"
+        : "INSERT with RETURNING clause failed",
+    });
 
-        // Update a record with RETURNING clause
-        const updateResult = await database
-            .updateTable("phones")
-            .set({ name: "Updated Returning Test Phone" })
-            .where("name", "=", "Returning Test Phone")
-            .returning(["id", "name"])
-            .executeTakeFirst();
+    // Update a record with RETURNING clause
+    const updateResult = await database
+      .updateTable("phones")
+      .set({ name: "Updated Returning Test Phone" })
+      .where("name", "=", "Returning Test Phone")
+      .returning(["id", "name"])
+      .executeTakeFirst();
 
-        results.push({
-            description: "Verify UPDATE with RETURNING clause works correctly",
-            passed:
-                updateResult !== undefined &&
-                updateResult.id !== undefined &&
-                updateResult.name === "Updated Returning Test Phone",
-            message: updateResult
-                ? "UPDATE with RETURNING clause successful"
-                : "UPDATE with RETURNING clause failed"
-        });
+    results.push({
+      description: "Verify UPDATE with RETURNING clause works correctly",
+      passed:
+        updateResult !== undefined &&
+        updateResult.id !== undefined &&
+        updateResult.name === "Updated Returning Test Phone",
+      message: updateResult
+        ? "UPDATE with RETURNING clause successful"
+        : "UPDATE with RETURNING clause failed",
+    });
 
-        // Delete a record with RETURNING clause
-        const deleteResult = await database
-            .deleteFrom("phones")
-            .where("name", "=", "Updated Returning Test Phone")
-            .returning(["id", "name"])
-            .executeTakeFirst();
+    // Delete a record with RETURNING clause
+    const deleteResult = await database
+      .deleteFrom("phones")
+      .where("name", "=", "Updated Returning Test Phone")
+      .returning(["id", "name"])
+      .executeTakeFirst();
 
-        results.push({
-            description: "Verify DELETE with RETURNING clause works correctly",
-            passed:
-                deleteResult !== undefined &&
-                deleteResult.id !== undefined &&
-                deleteResult.name === "Updated Returning Test Phone",
-            message: deleteResult
-                ? "DELETE with RETURNING clause successful"
-                : "DELETE with RETURNING clause failed"
-        });
-    } catch (e) {
-        console.error("Error in RETURNING clause tests:", e);
-        results.push({
-            description: "Verify RETURNING clause operations",
-            passed: false,
-            message: `Error in RETURNING clause tests: ${e}`
-        });
-    }
+    results.push({
+      description: "Verify DELETE with RETURNING clause works correctly",
+      passed:
+        deleteResult !== undefined &&
+        deleteResult.id !== undefined &&
+        deleteResult.name === "Updated Returning Test Phone",
+      message: deleteResult
+        ? "DELETE with RETURNING clause successful"
+        : "DELETE with RETURNING clause failed",
+    });
+  } catch (e) {
+    console.error("Error in RETURNING clause tests:", e);
+    results.push({
+      description: "Verify RETURNING clause operations",
+      passed: false,
+      message: `Error in RETURNING clause tests: ${e}`,
+    });
+  }
 
     return results;
 };

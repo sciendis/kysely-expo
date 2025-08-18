@@ -1,21 +1,21 @@
 import * as SQLite from "expo-sqlite";
 import {
-    Kysely,
-    DatabaseIntrospector,
-    DialectAdapter,
-    Driver,
-    QueryCompiler,
-    DatabaseConnection,
-    SqliteIntrospector,
-    SqliteQueryCompiler,
-    SqliteAdapter,
-    QueryResult,
-    Dialect,
-    CompiledQuery,
-    SelectQueryNode,
-    InsertQueryNode,
-    UpdateQueryNode,
-    DeleteQueryNode
+  Kysely,
+  DatabaseIntrospector,
+  DialectAdapter,
+  Driver,
+  QueryCompiler,
+  DatabaseConnection,
+  SqliteIntrospector,
+  SqliteQueryCompiler,
+  SqliteAdapter,
+  QueryResult,
+  Dialect,
+  CompiledQuery,
+  SelectQueryNode,
+  InsertQueryNode,
+  UpdateQueryNode,
+  DeleteQueryNode,
 } from "kysely";
 
 import { deserialize as autoAffinityDeserialize } from "./converters/auto-affinity-deserialize";
@@ -84,9 +84,9 @@ export class ExpoDriver implements Driver {
         await connection.directQuery("rollback");
     }
 
-    async destroy(): Promise<void> {
-        await this.#connection.closeConnection();
-    }
+  async destroy(): Promise<void> {
+    await this.#connection.closeConnection();
+  }
 
     async getDatabaseRuntimeVersion() {
         try {
@@ -148,63 +148,66 @@ class ExpoConnection implements DatabaseConnection {
         // Check if the query has a RETURNING clause
         const hasReturning = sql.toUpperCase().includes("RETURNING");
 
-        const transformedParameters = serialize([...parameters]);
+    const transformedParameters = serialize([...parameters]);
 
-        if (this.debug) {
-            console.debug(`${query.kind}${readonly ? " (readonly)" : ""}: ${sql}`);
-            if (hasReturning) console.debug("Query has RETURNING clause");
-        }
+    if (this.debug) {
+      console.debug(`${query.kind}${readonly ? " (readonly)" : ""}: ${sql}`);
+      if (hasReturning) console.debug("Query has RETURNING clause");
+    }
 
-        if (readonly) {
-            let res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
+    if (readonly || hasReturning) {
+      let res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
 
             const skip = query.kind === "SelectQueryNode" && sql.includes("pragma_table_info"); // @todo: fix this hack - find a better way
 
             if (this.config.columnNameBasedConversion && !skip) {
                 if (this.debug) console.log("processing nameBasedDeserialize");
 
-                return {
-                    rows: nameBasedDeserialize(res, this.config.columnNameBasedConversion),
-                    // Add these properties for non-readonly queries with RETURNING
-                    ...(hasReturning && !readonly
-                        ? {
-                              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
-                              numAffectedRows: BigInt(0), // We don't know this value
-                              insertId: BigInt(0) // We don't know this value
-                          }
-                        : {})
-                } satisfies QueryResult<R>;
-            }
+        return {
+          rows: nameBasedDeserialize(
+            res,
+            this.config.columnNameBasedConversion,
+          ),
+          // Add these properties for non-readonly queries with RETURNING
+          ...(hasReturning && !readonly
+            ? {
+                numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                numAffectedRows: BigInt(0), // We don't know this value
+                insertId: BigInt(0), // We don't know this value
+              }
+            : {}),
+        } satisfies QueryResult<R>;
+      }
 
             if (this.config.autoAffinityConversion && !skip) {
                 if (this.debug) console.log("processing autoAffinityDeserialize");
 
-                return {
-                    rows: autoAffinityDeserialize(res, this.config.onError),
-                    // Add these properties for non-readonly queries with RETURNING
-                    ...(hasReturning && !readonly
-                        ? {
-                              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
-                              numAffectedRows: BigInt(0), // We don't know this value
-                              insertId: BigInt(0) // We don't know this value
-                          }
-                        : {})
-                } satisfies QueryResult<R>;
-            }
+        return {
+          rows: autoAffinityDeserialize(res, this.config.onError),
+          // Add these properties for non-readonly queries with RETURNING
+          ...(hasReturning && !readonly
+            ? {
+                numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                numAffectedRows: BigInt(0), // We don't know this value
+                insertId: BigInt(0), // We don't know this value
+              }
+            : {}),
+        } satisfies QueryResult<R>;
+      }
 
-            return {
-                rows: res,
-                // Add these properties for non-readonly queries with RETURNING
-                ...(hasReturning && !readonly
-                    ? {
-                          numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
-                          numAffectedRows: BigInt(0), // We don't know this value
-                          insertId: BigInt(0) // We don't know this value
-                      }
-                    : {})
-            } satisfies QueryResult<R>;
-        } else {
-            const res = await this.sqlite.runAsync(sql, transformedParameters);
+      return {
+        rows: res,
+        // Add these properties for non-readonly queries with RETURNING
+        ...(hasReturning && !readonly
+          ? {
+              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+              numAffectedRows: BigInt(0), // We don't know this value
+              insertId: BigInt(0), // We don't know this value
+            }
+          : {}),
+      } satisfies QueryResult<R>;
+    } else {
+      const res = await this.sqlite.runAsync(sql, transformedParameters);
 
             const queryResult = {
                 numUpdatedOrDeletedRows: BigInt(res.changes),
