@@ -206,6 +206,10 @@ To run the example app:
 
 - fixed: first value being null clobbering typeIntrospection
 
+### 3.1.0
+
+- from mphill: added returning support, more tests and updated deps
+
 ### 3.0.3
 
 - fixed exports
