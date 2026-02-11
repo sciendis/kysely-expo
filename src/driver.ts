@@ -207,7 +207,6 @@ class ExpoConnection implements DatabaseConnection {
             const res = await this.sqlite.runAsync(sql, transformedParameters);
 
             const queryResult = {
-                numUpdatedOrDeletedRows: BigInt(res.changes),
                 numAffectedRows: BigInt(res.changes),
                 insertId: BigInt(res.lastInsertRowId),
                 rows: []
