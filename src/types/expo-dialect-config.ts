@@ -1,5 +1,6 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 import { SQLiteOpenOptions } from "expo-sqlite";
+
 import { ColumnNameBasedConverter } from "./column-name-based-converter";
 import { OnError } from "./error-type";
 
