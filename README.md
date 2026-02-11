@@ -189,11 +189,12 @@ support `npm link` so `yarn setup` will copy the files locally.
 To run the example app:
 
 1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
-2. `yarn build`
-3. `cd example`
-4. `yarn install`
-5. `yarn setup`
-6. `npx expo start`
+2. `yarn install`
+3. `yarn build`
+4. `cd example`
+5. `yarn install`
+6. `yarn setup`
+7. `npx expo start`
 
 ## Roadmap
 
@@ -202,6 +203,9 @@ To run the example app:
 
 ## Changelog
 
+### 3.3.0
+
+- upgraded to Expo v53, RN79, kysely v0.28.11
 ### 3.2.0
 
 - fixed: first value being null clobbering typeIntrospection
