@@ -203,9 +203,14 @@ To run the example app:
 
 ## Changelog
 
+### 3.4.0
+
+- upgraded to Expo v54, RN81
+
 ### 3.3.0
 
 - upgraded to Expo v53, RN79, kysely v0.28.11
+
 ### 3.2.0
 
 - fixed: first value being null clobbering typeIntrospection
@@ -221,7 +226,7 @@ To run the example app:
 ### 3.0.2
 
 - fixed example app and added some test data for orders
-- dirty fixed JSON parse error for string that were marked as json but were instead jsut normal strings
+- dirty fixed JSON parse error for string that were marked as json but were instead just normal strings
 
 ### 3.0.1
 

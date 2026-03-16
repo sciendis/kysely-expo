@@ -1,6 +1,7 @@
 import { SQLiteBindValue } from "expo-sqlite";
 
 import { isUint8Array } from "../helpers";
+import { sql } from "kysely";
 
 export const serialize = (parameters: unknown[]): SQLiteBindValue[] => {
     return parameters.map(parameter => {

@@ -3,6 +3,7 @@ import { Order, NewOrder } from "../tables/order-table";
 import { useKysely } from "kysely-expo";
 import { Database } from "./main";
 import { View, StyleSheet, Text, Button } from "react-native";
+import { handleInsertPatient } from "../utils/dbActions";
 
 const ordersMockData: NewOrder[] = [
     {
@@ -483,13 +484,13 @@ export const SciendisTestScreen: React.FC = () => {
             //         eb("archived", "=", true)
             //     ])
             // )
-            .where(eb =>
-                eb.or([
-                    eb("created", "is", null).or("created", "!=", true),
-                    eb("staged", "is", null).or("staged", "!=", true)
-                ])
-            )
-            .where("archived", "=", true)
+            // .where(eb =>
+            //     eb.or([
+            //         eb("created", "is", null).or("created", "!=", true),
+            //         eb("staged", "is", null).or("staged", "!=", true)
+            //     ])
+            // )
+            // .where("archived", "=", true)
             .execute();
 
         console.log(patients);
@@ -498,8 +499,9 @@ export const SciendisTestScreen: React.FC = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Orders</Text>
+            <Button title="Insert Patient" onPress={() => handleInsertPatient(kysely)} />
 
-            <Button title="Patients" onPress={handleSelectPatients} />
+            <Button title="Select Patients" onPress={handleSelectPatients} />
             {orders.map(order => (
                 <View key={order.orderId}>
                     <Text>{order.createdAt.toISOString()}</Text>

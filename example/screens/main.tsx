@@ -1,7 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { StatusBar } from "expo-status-bar";
-import { sql } from "kysely";
 import { useKysely } from "kysely-expo";
 import { useState } from "react";
 import { Button, ScrollView, StyleSheet, TextInput, View } from "react-native";
@@ -10,11 +9,20 @@ import { BrandTable } from "../tables/brand-table";
 import { FileTable } from "../tables/file-table";
 import { PhoneTable } from "../tables/phone-table";
 import { TypeTestsTable } from "../tables/type-tests-tables";
-import runner from "../tests";
 import { base64ToBlob } from "../utils";
 import { PatientTable } from "../tables/patients-table";
 import { OrderTable, ProductTable } from "../tables/order-table";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+    handleInsert,
+    handleSelect,
+    handleDelete,
+    handleUpdate,
+    handleSelectFiles,
+    handleTest,
+    handleDeleteBrand,
+    handleSelectStream
+} from "../utils/dbActions";
 export interface Database {
     type_tests: TypeTestsTable;
     brands: BrandTable;
@@ -29,132 +37,6 @@ export default function MainScreen() {
     const safeAreaInsets = useSafeAreaInsets();
     const database = useKysely<Database>();
     const [consoleText, setConsoleText] = useState("");
-
-    const getRandomNumberBetween = (min: number, max: number) =>
-        Math.floor(Math.random() * (max - min + 1) + min);
-
-    const handleInsert = async () => {
-        const values = {
-            name: "iPhone " + getRandomNumberBetween(3, 8),
-            brand_id: 1,
-            created_at: new Date(),
-            is_active: false,
-            meta_json: {
-                foo: "bar",
-                bar: 1
-            }
-        };
-
-        database
-            .insertInto("phones")
-            .values(values)
-            .execute()
-            .then(result => {
-                setConsoleText(`Inserted record with primary key: ${result[0].insertId}`);
-            }, console.error);
-    };
-
-    const handleSelect = async () => {
-        const phones = await database
-            .selectFrom("phones")
-            .innerJoin("brands", "phones.brand_id", "brands.id")
-            .select([
-                "phones.id",
-                "phones.meta_json",
-                sql<string>`upper(brands.name)`.as("brand"),
-                "phones.name",
-                "phones.created_at",
-                "phones.is_active"
-            ])
-            .orderBy("phones.name", "asc")
-            .execute();
-
-        console.log(phones);
-
-        const text = phones.map(phone => `${phone.name} ${phone.brand}`).join("\n");
-
-        setConsoleText(text);
-    };
-
-    const handleSelectStream = async () => {
-        const stream = await database
-            .selectFrom("phones")
-            .innerJoin("brands", "phones.brand_id", "brands.id")
-            .select([
-                "phones.meta_json",
-                sql<string>`upper(brands.name)`.as("brand"),
-                "phones.name",
-                "phones.created_at",
-                "phones.is_active"
-            ])
-            .orderBy("phones.name", "asc")
-            .stream();
-
-        for await (const phone of stream) {
-            console.log(phone);
-        }
-    };
-
-    const handleDelete = async () => {
-        const record = await database
-            .selectFrom("phones")
-            .select(["id"])
-            .limit(1)
-            .executeTakeFirst();
-
-        if (record !== undefined) {
-            await database.deleteFrom("phones").where("id", "=", record.id).execute();
-
-            setConsoleText(`Deleted record with primary key: ${record.id}`);
-        } else {
-            setConsoleText("No records to delete");
-        }
-    };
-
-    // Test cascade delete
-    const handleDeleteBrand = async () => {
-        const record = await database
-            .selectFrom("brands")
-            .select(["id"])
-            .limit(1)
-            .executeTakeFirst();
-
-        if (record !== undefined) {
-            await database.deleteFrom("brands").where("id", "=", record.id).execute();
-
-            setConsoleText(`Deleted record with primary key: ${record.id}`);
-        } else {
-            setConsoleText("No records to delete");
-        }
-    };
-
-    const handleUpdate = async () => {
-        const record = await database
-            .updateTable("phones")
-            .set({ created_at: new Date() })
-            .executeTakeFirst();
-
-        setConsoleText(`Matching rows ${record?.numUpdatedRows}`);
-    };
-
-    const handleTest = async () => {
-        const result = await runner(database);
-
-        setConsoleText(
-            result
-                .map(result => `- ${result.description}: ${result.passed ? "✅" : "❌"}`)
-                .join("\n")
-        );
-    };
-
-    const handleSelectFiles = async () => {
-        const files = await database
-            .selectFrom("files")
-            .select(["contents", "mime_type", "name", "id"])
-            .execute();
-
-        console.log(files);
-    };
 
     const handlePickImage = async () => {
         // No permissions request is necessary for launching the image library
@@ -262,16 +144,28 @@ export default function MainScreen() {
                         }}
                     ></View>
 
-                    <Button title="Insert" onPress={handleInsert} />
-                    <Button title="Select" onPress={handleSelect} />
-                    <Button title="Delete" onPress={handleDelete} />
-                    <Button title="Delete Cascade" onPress={handleDeleteBrand} />
-                    <Button title="Update" onPress={handleUpdate} />
+                    <Button title="Insert" onPress={() => handleInsert(database, setConsoleText)} />
+                    <Button title="Select" onPress={() => handleSelect(database, setConsoleText)} />
+                    {/*<Button title="Delete" onPress={() => handleDelete(database, setConsoleText)} />
+                    <Button
+                        title="Delete Cascade"
+                        onPress={() => handleDeleteBrand(database, setConsoleText)}
+                    />
+                    <Button title="Update" onPress={() => handleUpdate(database, setConsoleText)} />
                     <Button title="Transaction" onPress={handleTransaction} />
                     <Button title="Store File" onPress={handlePickImage} />
-                    <Button title="Select Files" onPress={handleSelectFiles} />
-                    <Button title="Select Stream" onPress={handleSelectStream} />
-                    <Button title="Run Tests" onPress={handleTest} />
+                    <Button
+                        title="Select Files"
+                        onPress={() => handleSelectFiles(database, setConsoleText)}
+                    />
+                    <Button
+                        title="Select Stream"
+                        onPress={() => handleSelectStream(database, setConsoleText)}
+                    />
+                    <Button
+                        title="Run Tests"
+                        onPress={() => handleTest(database, setConsoleText)}
+                    /> */}
                 </View>
             </View>
         </ScrollView>

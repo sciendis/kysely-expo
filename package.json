@@ -1,6 +1,6 @@
 {
     "name": "@sciendis/kysely-expo",
-    "version": "3.3.0",
+    "version": "3.4.0",
     "description": "Expo SQLite support for Kysely",
     "author": "sciendis",
     "scripts": {
@@ -44,11 +44,11 @@
     "dependencies": {
         "expo-sqlite": "^15.0.6",
         "kysely": "^0.28.11",
-        "react": "19.0.0"
+        "react": "19.1.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.16.0",
-        "@types/react": "19.0.0",
+        "@types/react": "~19.1.10",
         "@typescript-eslint/eslint-plugin": "^8.17.0",
         "@typescript-eslint/parser": "^8.17.0",
         "eslint": "^9.16.0",
@@ -58,6 +58,6 @@
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-react": "^7.37.2",
         "prettier": "^3.3.3",
-        "typescript": "~5.8.3"
+        "typescript": "~5.9.2"
     }
 }
